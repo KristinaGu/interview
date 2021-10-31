@@ -1,0 +1,26 @@
+pipeline {
+    agent { label 'xxx.xxx.xxx.xxx'}
+    stages {
+        stage('test') {
+            steps {
+                echo 'test'
+                sh 'printenv'
+            }
+        }
+        stage('build-image') {
+            steps {
+                retry(2) { sh 'docker build . -t  kristinagu/myroject:1.0'}
+            }
+        }
+        stage('push-image') {
+            steps {
+                 retry(2) { sh 'docker push kristinagu/myroject:1.0'}
+            }
+        }
+        stage('deploy') {
+            steps {
+                timeout(time: 1, unit: 'MINUTES') {sh "kubectl apply -f deploy/app.yaml" }
+            }
+        }
+    }
+}
